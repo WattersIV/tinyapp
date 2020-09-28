@@ -38,11 +38,15 @@ app.get("/urls/new", (req, res) => {     // gen a new short url
 });
 
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
-  console.log(req.params)
   const templateVars = { shortURL: req.params.shortURL, 
                           longURL: urlDatabase[req.params.shortURL] }; 
   console.log(templateVars);
   res.render("urls_show", templateVars);
+}); 
+
+app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 }); 
 
 // --------------Misc----------------------
