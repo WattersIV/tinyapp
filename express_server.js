@@ -4,7 +4,7 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 app.set("view engine", "ejs");
 
-//------------------- Data Base and Functions ---------
+//------------------- Database and Functions ---------
 const generateRandomString = () => {
   let result           = '';
   const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -18,7 +18,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-//-----------URL Generation/Lookup-----------------
+//-----------URL Post/Get -----------------
 
 app.use(bodyParser.urlencoded({extended: true})); //transforms body data from buffer to a string
 app.post("/urls", (req, res) => {
@@ -48,6 +48,10 @@ app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 }); 
+//----------------- URL Delete and Update------ 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+})
 
 // --------------Misc----------------------
 app.get("/", (req, res) => {
