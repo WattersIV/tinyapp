@@ -50,7 +50,8 @@ app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
 }); 
 //----------------- URL Delete and Update------ 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  delete urlDatabase[req.params.shortURL]; 
+  res.redirect("/urls")
 })
 
 // --------------Misc----------------------
