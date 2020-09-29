@@ -39,20 +39,26 @@ app.get("/urls/new", (req, res) => {     // gen a new short url
 
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
   const templateVars = { shortURL: req.params.shortURL, 
-                          longURL: urlDatabase[req.params.shortURL] }; 
-  console.log(templateVars);
-  res.render("urls_show", templateVars);
-}); 
-
-app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-}); 
-//----------------- URL Delete and Update------ 
-app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL]; 
-  res.redirect("/urls")
-})
+    longURL: urlDatabase[req.params.shortURL] }; 
+    console.log(templateVars);
+    res.render("urls_show", templateVars);
+  }); 
+  
+  app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
+    const longURL = urlDatabase[req.params.shortURL];
+    res.redirect(longURL);
+  }); 
+  //----------------- URL Delete and Update------ 
+  app.post("/urls/:shortURL/delete", (req, res) => {
+    delete urlDatabase[req.params.shortURL]; 
+    res.redirect("/urls") 
+  });
+  
+  app.post("/urls/:shortURL/update", (req, res) => {
+    console.log(req.body, 'This is re.body')  
+    urlDatabase[req.params.shortURL] = req.body.newURL; 
+    res.redirect("/urls");    
+  });
 
 // --------------Misc----------------------
 app.get("/", (req, res) => {
