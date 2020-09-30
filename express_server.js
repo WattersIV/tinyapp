@@ -42,19 +42,23 @@ app.post("/urls", (req, res) => {
 }); 
 
 app.get("/register", (req,res) => {
-  res.render("register")
-})
+  const templateVars = {urls: urlDatabase,
+                        user: users[req.cookies["user_id"]]};
+  res.render("register", templateVars);
+});
 
 app.get("/login", (req, res) => {
-  res.render("login");
-})
+  const templateVars = {urls: urlDatabase,
+                        user: users[req.cookies["user_id"]]};
+  res.render("login", templateVars);
+});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });  
 app.get("/urls", (req, res) => {
   const templateVars = {urls: urlDatabase,
-                      user: users[req.cookies["user_id"]]}; 
+                        user: users[req.cookies["user_id"]]}; 
   res.render("urls_index", templateVars);
 });
 app.get("/urls/new", (req, res) => {     // gen a new short url

@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title>TinyApp</title>
 </head>
 <body> 
+  <!--_header--> 
+  <%- include('partials/_header') %>
+  <main style="margin: 1em;"
   <form method="POST" action="/register">
     <input id="email" type="email" name="email" placeholder="Email">
     <input id="password" type="password" name="password" placeholder="Password">
-    <input type="submit" value="register">
+    <input type="submit" value="Register">
   </form> 
 </body>
 </html>
