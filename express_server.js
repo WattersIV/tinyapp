@@ -84,13 +84,19 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
   }); 
   
   app.post("/register", (req, res) => {
-    if (req.body.email === '') {
-      res.status(400).send('Email required');
+    if (req.body.email === '' || req.body.password === '') {
+      res.status(400).send('Email and password required');
     } 
+    for (const user in users) {
+      if(users[user].email === req.body.email) {
+        res.status(400).send('That email is already in use'); 
+      }
+    }
     const ID = generateRandomString(); 
     users[ID] = {id: ID, 
                 email: req.body.email, 
-                password: req.body.password} 
+                password: req.body.password}  
+  console.log(users);
   res.cookie('user_id', ID);
   res.redirect("/urls");
   });
