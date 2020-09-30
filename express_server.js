@@ -17,7 +17,20 @@ const generateRandomString = () => {
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
-};
+}; 
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 //-----------URL Post/Get -----------------
 
@@ -69,6 +82,16 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
     urlDatabase[req.params.shortURL] = req.body.newURL; 
     res.redirect("/urls");    
   }); 
+  
+  app.post("/register", (req, res) => {
+    const ID = generateRandomString(); 
+    users[ID] = {id: ID, 
+                email: req.body.email, 
+                password: req.body.password} 
+    console.log(users);  
+    res.cookie('username', ID);
+    res.redirect("/urls");
+  });
   
   app.post("/login", (req, res) => {
     console.log(req.body.username);
