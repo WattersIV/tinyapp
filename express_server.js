@@ -13,11 +13,15 @@ const generateRandomString = () => {
      result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
-}
+} 
+
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID"},
   "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID"}
 }; 
+
+
+
 
 const users = {
   "userRandomID": {
@@ -37,7 +41,8 @@ const users = {
 app.use(bodyParser.urlencoded({extended: true})); //transforms body data from buffer to a string
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(); 
-  urlDatabase[shortURL] = req.body.longURL; //adds key value pair to the object
+  urlDatabase[shortURL] = {longURL: req.body.longURL, 
+                          userID: req.cookies["user_id"]} //adds key value pair to the object
   res.redirect(`/urls/${shortURL}`);
 }); 
 
@@ -57,8 +62,14 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });  
 app.get("/urls", (req, res) => {
-  const templateVars = {urls: urlDatabase,
-                        user: users[req.cookies["user_id"]]}; 
+  let myUrls = {};
+  for (const url in urlDatabase) {
+    if (req.cookies["user_id"] === urlDatabase[url].userID) {
+      myUrls[url] = urlDatabase[url];
+    }
+  } 
+  const templateVars = {urls: myUrls,
+                        user: users[req.cookies["user_id"]]};  
   res.render("urls_index", templateVars);
 });
 app.get("/urls/new", (req, res) => {     // gen a new short url
@@ -68,7 +79,9 @@ app.get("/urls/new", (req, res) => {     // gen a new short url
 });
 
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
-  console.log(urlDatabase[req.params.shortURL].longURL);
+  if(req.cookies.user_id) {
+    console.log(urlDatabase);
+  }
   const templateVars = { shortURL: req.params.shortURL, 
                         longURL: urlDatabase[req.params.shortURL].longURL, 
                         user: req.cookies["user_id"] }; 
@@ -82,14 +95,21 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
 
   //----------------- URL Delete and Update------ 
   app.post("/urls/:shortURL/delete", (req, res) => {
-    delete urlDatabase[req.params.shortURL]; 
-    res.redirect("/urls") 
+    if (req.cookies["user_id"] === urlDatabase[req.params.shortURL].userID) {
+      delete urlDatabase[req.params.shortURL]; 
+      res.redirect("/urls") 
+    } else {
+      res.redirect("/login")
+    }
   });
   
   app.post("/urls/:shortURL/update", (req, res) => {
-    console.log(req.body, 'This is re.body')  
-    urlDatabase[req.params.shortURL] = req.body.newURL; 
-    res.redirect("/urls");    
+    if (req.cookies["user_id"] === urlDatabase[req.params.shortURL].userID) {
+      urlDatabase[req.params.shortURL] = req.body.newURL; 
+      res.redirect("/urls"); 
+    } else {
+      res.redirect("/login");
+    }    
   }); 
   
   app.post("/register", (req, res) => {
