@@ -65,7 +65,6 @@ app.get("/urls/new", (req, res) => {     // gen a new short url
   const templateVars = {urls: urlDatabase,
                         user: users[req.cookies["user_id"]]}; 
   templateVars.user ? res.render("urls_new", templateVars) : res.redirect("/login")
-  
 });
 
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
@@ -97,11 +96,11 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
     if (req.body.email === '' || req.body.password === '') {
       res.status(400).send('Email and password required');
     } 
-    for (const user in users) {
+    for (const user in users) { 
       if(users[user].email === req.body.email) {
         res.status(400).send('That email is already in use'); 
-      }
-    }
+      } 
+    } 
     const ID = generateRandomString(); 
     users[ID] = {id: ID, 
                 email: req.body.email, 
