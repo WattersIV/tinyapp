@@ -63,8 +63,10 @@ app.get("/urls", (req, res) => {
 });
 app.get("/urls/new", (req, res) => {     // gen a new short url
   const templateVars = {urls: urlDatabase,
-                        username: req.cookies["user_id"]}; 
-res.render("urls_new", templateVars);});
+                        user: users[req.cookies["user_id"]]}; 
+  templateVars.user ? res.render("urls_new", templateVars) : res.redirect("/login")
+  
+});
 
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
   const templateVars = { shortURL: req.params.shortURL, 
