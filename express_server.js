@@ -45,6 +45,10 @@ app.get("/register", (req,res) => {
   res.render("register")
 })
 
+app.get("/login", (req, res) => {
+  res.render("login");
+})
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });  
@@ -96,15 +100,23 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
     users[ID] = {id: ID, 
                 email: req.body.email, 
                 password: req.body.password}  
-  console.log(users);
   res.cookie('user_id', ID);
   res.redirect("/urls");
   });
   
   app.post("/login", (req, res) => {
-    console.log(req.body.username);
-    res.cookie('user_id', ID);
-    res.redirect('/urls');
+    if (req.body.email === "" || req.body.password === "") {
+      res.status(400).send("Email and password required");
+    } 
+    for (const user in users) {
+      if(users[user].email === req.body.email) { 
+        if (users[user].password === req.body.password) {
+          res.cookie("user_id", users[user].id); 
+          return res.redirect("/urls");
+        }  
+      }    
+    } 
+    res.status(403).send("Invalid email/password")
   });
   
   app.post("/logout", (req, res) => {
