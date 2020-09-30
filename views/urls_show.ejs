@@ -19,10 +19,10 @@
       <form> 
         <h2> Edit </h2>
         <label for="newURL">New URL</label> 
-        <input type="text" id="newURL" name="newURL">
-        <method="POST" action="/urls/<%= shortURL %>/update"> 
-        <button type="submit" value="Submit">Submit</button>
-      </form>
+        <form method="POST" action="/urls/<%= shortURL %>/update">
+          <input id="newURL" type="text" name="newURL">
+          <input type="submit" value="Submit">
+        </form> 
     </div>
   </div>
   <!-- Bootstrap JS -->

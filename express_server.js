@@ -26,7 +26,12 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(); 
   urlDatabase[shortURL] = req.body.longURL; //adds key value pair to the object
   res.redirect(`/urls/${shortURL}`);
-});
+}); 
+
+app.get("/register", (req,res) => {
+  res.render("register")
+})
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });  
