@@ -11,8 +11,8 @@
           </input> 
       </div> 
     </div>  
-    <% if(username) { %> 
-      <%= username %>  
+    <% if(user) { %> 
+      <%= user.email %>  
       <form method="POST" action="/logout">
         <input type="submit" value="Logout">
       </form> 
