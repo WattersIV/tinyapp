@@ -48,6 +48,7 @@ const cookieIsUser = (cookie, database) => {
   return false;
 }
 
+//Logs the date in YYYY/MM/DD HRS/MIN/SEC
 const getDate = () => {
   const today = new Date();
   const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();

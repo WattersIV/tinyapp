@@ -147,7 +147,7 @@ const templateVars = { shortURL: req.params.shortURL,
 
 app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
   const longURL = urlDatabase[req.params.shortURL].longURL; 
-  urlDatabase[req.params.shortURL].visits = (urlDatabase[req.params.shortURL]) + 1; 
+  urlDatabase[req.params.shortURL].visits = ((urlDatabase[req.params.shortURL].visits)  + 1);  // This doesnt work
   urlDatabase[req.params.shortURL].visitsTimes.push(getDate()); 
   console.log(urlDatabase);
   res.redirect(longURL);
