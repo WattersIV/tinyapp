@@ -57,8 +57,17 @@ const getEmail = (email, database) => {
     }
   } 
   return false;
-}
+} 
 
+const getMyUrls = (user_id, database) => {
+  let myUrls = {};
+  for (const url in urlDatabase) {
+    if ( user_id === urlDatabase[url].userID) {
+      myUrls[url] = urlDatabase[url];
+    }
+  } 
+  return myUrls; 
+}
 
 //----------- Page Roots -----------------
 
@@ -71,14 +80,9 @@ app.get("/urls.json", (req, res) => {
 });  
 
 app.get("/urls", (req, res) => {
-  let myUrls = {};
-  for (const url in urlDatabase) {
-    if (req.session.user_id === urlDatabase[url].userID) {
-      myUrls[url] = urlDatabase[url];
-    }
-  } 
+  const myUrls = getMyUrls(req.session.user_id, urlDatabase);
   const templateVars = {urls: myUrls,
-                        user: getUser(req.session.user_id, users)};  //HERE
+                        user: getUser(req.session.user_id, users)};  
   res.render("urls_index", templateVars);
 });
 
