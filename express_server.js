@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt"); 
 const cookieSession = require("cookie-session")
 const methodOverride = require("method-override")
-const { getMyUrls, getEmail, getUser, generateRandomString, cookieIsUser } = require("./helpers");
+const { getMyUrls, getEmail, getUser, generateRandomString, cookieIsUser, getDate } = require("./helpers");
 
 app.set("view engine", "ejs");
 // override with POST having ?_method=DELETE
@@ -33,11 +33,11 @@ const users = {
 }
 
 const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID"},
-  "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID"}
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID", visits: 0, uniqueVisits: 0, visitsTimes: []},
+  "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID", visits: 0, uniqueVisits: 0, visitsTimes: []}
 }; 
 
-//----------- Page Roots -----------------
+//--------------- Page Roots -----------------
 
 app.get("/"), (req, res) => {
   cookieIsUser(req.session.user_id, users) ? res.redirect("/urls") : res.redirect("/login");
@@ -81,11 +81,15 @@ app.get("/login", (req, res) => {
 
 
 
-//---------------------- Page Subdirectory -------------------
+//---------------------- Page Posts -------------------
+
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(); 
   urlDatabase[shortURL] = {longURL: req.body.longURL, 
-    userID: req.session.user_id} //aports key value pair to the object  
+                          userID: req.session.user_id, 
+                          visits: 0, 
+                          uniqueVisits: 0, 
+                          visitsTimes: []};  
     res.redirect(`/urls/${shortURL}`);
   }); 
 
@@ -106,6 +110,27 @@ app.post("/register", (req, res) => {
 res.redirect("/urls");
 }); 
 
+app.post("/login", (req, res) => {
+  if (!getEmail(req.body.email, users)) {
+    res.redirect("/register");
+  } 
+  for (const user in users) {
+    if(users[user].email === req.body.email) {  
+      if (bcrypt.compareSync(req.body.password, getEmail(req.body.email, users).password)) { 
+        req.session.user_id = users[user].id; 
+        return res.redirect("/urls");
+      }
+    }    
+  } 
+  res.status(403).send("Invalid email/password")
+});
+
+app.post("/logout", (req, res) => {
+  req.session.user_id = null; 
+  res.redirect('/urls');
+});
+
+//---------------------- Page Subdirectory -------------------
 
 app.get("/urls/new", (req, res) => {     // gen a new short url
   const templateVars = {urls: urlDatabase,
@@ -116,12 +141,15 @@ app.get("/urls/new", (req, res) => {     // gen a new short url
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
 const templateVars = { shortURL: req.params.shortURL, 
                       longURL: urlDatabase[req.params.shortURL].longURL, 
-                      user: getUser(req.session.user_id, users) }; 
+                      user: getUser(req.session.user_id, users) };  
   res.render("urls_show", templateVars);
 }); 
 
 app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
-  const longURL = urlDatabase[req.params.shortURL].longURL;
+  const longURL = urlDatabase[req.params.shortURL].longURL; 
+  urlDatabase[req.params.shortURL].visits = (urlDatabase[req.params.shortURL]) + 1; 
+  urlDatabase[req.params.shortURL].visitsTimes.push(getDate()); 
+  console.log(urlDatabase);
   res.redirect(longURL);
 });  
 
@@ -147,25 +175,6 @@ app.put("/urls/:shortURL/update", (req, res) => {
 }); 
 
 
-app.post("/login", (req, res) => {
-  if (!getEmail(req.body.email, users)) {
-    res.redirect("/register");
-  } 
-  for (const user in users) {
-    if(users[user].email === req.body.email) {  
-      if (bcrypt.compareSync(req.body.password, getEmail(req.body.email, users).password)) { 
-        req.session.user_id = users[user].id; 
-        return res.redirect("/urls");
-      }
-    }    
-  } 
-  res.status(403).send("Invalid email/password")
-});
-
-app.post("/logout", (req, res) => {
-  req.session.user_id = null; 
-  res.redirect('/urls');
-});
 // -------------------Misc----------------------
 app.get("/", (req, res) => {
   res.send("Hello!");
