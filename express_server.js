@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080 
 const bodyParser = require("body-parser"); 
-const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser'); 
+const bcrypt = require('bcrypt');
 app.set("view engine", "ejs");
 app.use(cookieParser());
 //------------------- Database and Functions ---------
@@ -121,10 +122,12 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
         res.status(400).send('That email is already in use'); 
       } 
     } 
+    const password = req.body.password;   
+    const hashedPassword = bcrypt.hashSync(password, 10);
     const ID = generateRandomString(); 
     users[ID] = {id: ID, 
                 email: req.body.email, 
-                password: req.body.password}  
+                password: hashedPassword}  
   res.cookie('user_id', ID);
   res.redirect("/urls");
   });
@@ -134,9 +137,10 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
       res.status(400).send("Email and password required");
     } 
     for (const user in users) {
-      if(users[user].email === req.body.email) { 
-        if (users[user].password === req.body.password) {
+      if(users[user].email === req.body.email) {  
+        if (bcrypt.compareSync(req.body.password, users[user].password)) {
           res.cookie("user_id", users[user].id); 
+          console.log(users)
           return res.redirect("/urls");
         }  
       }    
