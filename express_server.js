@@ -2,15 +2,18 @@ const express = require("express");
 const app = express();
 const PORT = 8080; 
 const bodyParser = require("body-parser"); 
-const bcrypt = require('bcrypt'); 
-const cookieSession = require('cookie-session') 
+const bcrypt = require("bcrypt"); 
+const cookieSession = require("cookie-session")
+const methodOverride = require("method-override")
 const { getMyUrls, getEmail, getUser, generateRandomString, cookieIsUser } = require("./helpers");
 
 app.set("view engine", "ejs");
+// override with POST having ?_method=DELETE
+app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({extended: true})); //transforms body data from buffer to a string
 app.use(cookieSession({
-  name: 'session',
-  keys: ['topsecret', 'tiptopsecret'],
+  name: "session",
+  keys: ["topsecret", "tiptopsecret"],
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
@@ -124,7 +127,7 @@ app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
 
 //----------------- Update and Delete ------------------ 
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL/delete", (req, res) => {
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL]; 
     res.redirect("/urls") 
@@ -133,8 +136,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-app.post("/urls/:shortURL/update", (req, res) => {
-  console.log('Here!')
+app.put("/urls/:shortURL/update", (req, res) => {
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) { 
     urlDatabase[req.params.shortURL].longURL = req.body.longURL; 
     console.log(urlDatabase[req.params.shortURL])

@@ -27,7 +27,7 @@ const getEmail = (email, database) => {
   return false;
 } 
 
-//Obtains all of the urls mad my the current user
+//Obtains all of the urls made my the current user
 const getMyUrls = (user_id, database) => {
   let myUrls = {};
   for (const url in database) {
