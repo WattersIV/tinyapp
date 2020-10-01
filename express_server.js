@@ -1,9 +1,11 @@
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080 
+const PORT = 8080; 
 const bodyParser = require("body-parser"); 
 const bcrypt = require('bcrypt'); 
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session') 
+const { getMyUrls, getEmail, getUser, generateRandomString, cookieIsUser } = require("./helpers");
+
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true})); //transforms body data from buffer to a string
 app.use(cookieSession({
@@ -12,7 +14,7 @@ app.use(cookieSession({
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
-}))
+}));
 //------------------- Database and Functions ---------
 const users = {
   "userRandomID": {
@@ -32,71 +34,46 @@ const urlDatabase = {
   "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID"}
 }; 
 
-const generateRandomString = () => {
-  let result           = '';
-  const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for ( var i = 0; i <= 5; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-} 
-
-const getUser = (user_id, database) => {
-  for (let user in database) {  
-    if(user_id === database[user].id) {
-      return database[user];
-    }
-  } 
-  return false;
-}
-
-const getEmail = (email, database) => {
-  for (const user in database) { 
-    if(email === database[user].email) {
-      return database[user];
-    }
-  } 
-  return false;
-} 
-
-const getMyUrls = (user_id, database) => {
-  let myUrls = {};
-  for (const url in urlDatabase) {
-    if ( user_id === urlDatabase[url].userID) {
-      myUrls[url] = urlDatabase[url];
-    }
-  } 
-  return myUrls; 
-}
-
 //----------- Page Roots -----------------
 
 app.get("/"), (req, res) => {
-  res.redirect("/urls")
-}
+  cookieIsUser(req.session.user_id, users) ? res.redirect("/urls") : res.redirect("/login");
+};
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });  
 
 app.get("/urls", (req, res) => {
-  const myUrls = getMyUrls(req.session.user_id, urlDatabase);
-  const templateVars = {urls: myUrls,
-                        user: getUser(req.session.user_id, users)};  
-  res.render("urls_index", templateVars);
+  if (cookieIsUser(req.session.user_id, users)) {
+    const myUrls = getMyUrls(req.session.user_id, urlDatabase);
+    const templateVars = {urls: myUrls,
+                          user: getUser(req.session.user_id, users)};  
+    res.render("urls_index", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/register", (req,res) => {
-  const user = req.session.user_id ? users[req.session.user_id] : null;
-  templateVars = { user }
-  res.render("register", templateVars);
+  if (cookieIsUser(req.session.user_id, users)) {
+    res.redirect("/urls");
+  } else {
+    const user = null;
+    templateVars = { user };
+    res.render("register", templateVars); 
+  }
 });
 
 
 app.get("/login", (req, res) => {
-  const templateVars = {urls: urlDatabase,
-                        user: getUser(req.session.user_id, users)};
-  res.render("login", templateVars);
+  if (cookieIsUser(req.session.user_id, users)) {
+    res.redirect("/urls");
+  } else {
+    const templateVars = {urls: urlDatabase,
+                          user: getUser(req.session.user_id, users)};
+    res.render("login", templateVars);
+  }
 });
 
 
@@ -186,8 +163,8 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   req.session.user_id = null; 
   res.redirect('/urls');
-})
-// --------------Misc----------------------
+});
+// -------------------Misc----------------------
 app.get("/", (req, res) => {
   res.send("Hello!");
 }); 
