@@ -128,10 +128,10 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
   
   app.post("/urls/:shortURL/update", (req, res) => {
     console.log('Here!')
-    if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
-      console.log(req.body.shortURL, 'req param', req.session.shortURL, 'session')
-      urlDatabase[req.body.shortURL] = req.body.newURL; 
-      res.redirect("/urls"); 
+    if (req.session.user_id === urlDatabase[req.params.shortURL].userID) { 
+      urlDatabase[req.params.shortURL].longURL = req.body.longURL; 
+      console.log(urlDatabase[req.params.shortURL])
+      res.redirect(`/urls/${req.params.shortURL}`); 
     } else {
       res.redirect("/login");
     }    
@@ -160,7 +160,7 @@ app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
     } 
     for (const user in users) {
       if(users[user].email === req.body.email) {  
-        if (bcrypt.compareSync(req.body.password, getEmail(req.body.email, users).password)) {  //dssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+        if (bcrypt.compareSync(req.body.password, getEmail(req.body.email, users).password)) { 
           req.session.user_id = users[user].id; 
           return res.redirect("/urls");
         }
