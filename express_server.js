@@ -6,11 +6,11 @@ const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session")
 const methodOverride = require("method-override") 
 const { v4: uuidv4 } = require('uuid');
-const { getMyUrls, getEmail, getUser, generateRandomString, cookieIsUser, getDate, isUniqueVisit } = require("./helpers");
+const { getMyUrls, getUserWithEmail, getUser, generateRandomString, cookieIsUser, getDate, isUniqueVisit } = require("./helpers");
 
 app.set("view engine", "ejs");
 // override with POST having ?_method=DELETE
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({extended: true})); //transforms body data from buffer to a string
 app.use(cookieSession({
   name: "session",
@@ -33,7 +33,7 @@ const users = {
     password: "dishwasher-funk", 
     UUID: 12
   }
-}
+};
 
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID", visits: 0, uniqueVisits: 0,
@@ -107,7 +107,7 @@ app.post("/register", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(400).send('Email and password required');
   } 
-  if (getEmail(req.body.email, users)) {
+  if (getUserWithEmail(req.body.email, users)) {
     res.status(400).send('That email is already in use'); 
   }  
   const password = req.body.password;   
@@ -122,18 +122,18 @@ res.redirect("/urls");
 }); 
 
 app.post("/login", (req, res) => {
-  if (!getEmail(req.body.email, users)) {
+  if (!getUserWithEmail(req.body.email, users)) {
     res.redirect("/register");
   } 
   for (const user in users) {
     if(users[user].email === req.body.email) {  
-      if (bcrypt.compareSync(req.body.password, getEmail(req.body.email, users).password)) { 
+      if (bcrypt.compareSync(req.body.password, getUserWithEmail(req.body.email, users).password)) { 
         req.session.user_id = users[user].id; 
         return res.redirect("/urls");
       }
     }    
   } 
-  res.status(403).send("Invalid email/password")
+  res.status(403).send("Invalid email/password");
 });
 
 app.post("/logout", (req, res) => {
@@ -175,9 +175,9 @@ app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
 app.delete("/urls/:shortURL/delete", (req, res) => {
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL]; 
-    res.redirect("/urls") 
+    res.redirect("/urls"); 
   } else {
-    res.redirect("/login")
+    res.redirect("/login");
   }
 });
 

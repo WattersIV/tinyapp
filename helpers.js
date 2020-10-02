@@ -18,7 +18,7 @@ const getUser = (user_id, database) => {
 }
 
 //Gets all of the users information using their email if they exist in the DB
-const getEmail = (email, database) => {
+const getUserWithEmail = (email, database) => {
   for (const user in database) { 
     if(email === database[user].email) {
       return database[user];
@@ -60,7 +60,7 @@ const getDate = () => {
 const isUniqueVisit = (uuid, userDatabase, urlDatabase, shortURL) => {
   for (const user in userDatabase) {  
     if (userDatabase[user].UUID === uuid) {  
-      for (const visitor in urlDatabase[shortURL].visitors) {   
+      for (const visitor in urlDatabase[shortURL].visitors) {        
         if(userDatabase[user].UUID === urlDatabase[shortURL].visitors[visitor]) {
           return false
         }
@@ -72,7 +72,7 @@ const isUniqueVisit = (uuid, userDatabase, urlDatabase, shortURL) => {
 
 module.exports = {
   getMyUrls, 
-  getEmail, 
+  getUserWithEmail, 
   getUser,  
   generateRandomString, 
   cookieIsUser, 
