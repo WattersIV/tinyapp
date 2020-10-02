@@ -4,8 +4,9 @@ const PORT = 8080;
 const bodyParser = require("body-parser"); 
 const bcrypt = require("bcrypt"); 
 const cookieSession = require("cookie-session")
-const methodOverride = require("method-override")
-const { getMyUrls, getEmail, getUser, generateRandomString, cookieIsUser, getDate } = require("./helpers");
+const methodOverride = require("method-override") 
+const { v4: uuidv4 } = require('uuid');
+const { getMyUrls, getEmail, getUser, generateRandomString, cookieIsUser, getDate, isUniqueVisit } = require("./helpers");
 
 app.set("view engine", "ejs");
 // override with POST having ?_method=DELETE
@@ -23,25 +24,25 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "billywatters1@gmail.com", 
-    password: "Hello"
+    password: "Hello", 
+    UUID: 22
   },
   "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: "dishwasher-funk", 
+    UUID: 12
   }
 }
 
 const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID", visits: 0, uniqueVisits: 0, visitsTimes: []},
-  "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID", visits: 0, uniqueVisits: 0, visitsTimes: []}
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID", visits: 0, uniqueVisits: 0,
+                       visitsTimes: [], visitors: []},
+  "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID", visits: 0, uniqueVisits: 0,
+                       visitsTimes: [], visitors: []}
 }; 
 
 //--------------- Page Roots -----------------
-
-app.get("/"), (req, res) => {
-  cookieIsUser(req.session.user_id, users) ? res.redirect("/urls") : res.redirect("/login");
-};
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -89,7 +90,8 @@ app.post("/urls", (req, res) => {
                           userID: req.session.user_id, 
                           visits: 0, 
                           uniqueVisits: 0, 
-                          visitsTimes: []};  
+                          visitsTimes: [],
+                          visitors: []};
     res.redirect(`/urls/${shortURL}`);
   }); 
 
@@ -106,7 +108,8 @@ app.post("/register", (req, res) => {
   req.session.user_id = ID;  
   users[ID] = {id: ID, 
               email: req.body.email, 
-              password: hashedPassword}  
+              password: hashedPassword, 
+              UUID: uuidv4()};  
 res.redirect("/urls");
 }); 
 
@@ -147,9 +150,15 @@ const templateVars = { shortURL: req.params.shortURL,
 
 app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
   const longURL = urlDatabase[req.params.shortURL].longURL; 
-  urlDatabase[req.params.shortURL].visits = ((urlDatabase[req.params.shortURL].visits)  + 1);  // This doesnt work
-  urlDatabase[req.params.shortURL].visitsTimes.push(getDate()); 
+  urlDatabase[req.params.shortURL].visits = ((urlDatabase[req.params.shortURL].visits)  + 1); 
+  
+  if (isUniqueVisit(users[req.session.user_id].UUID, users, urlDatabase, req.params.shortURL)) {
+    urlDatabase[req.params.shortURL].uniqueVisits = (urlDatabase[req.params.shortURL].uniqueVisits + 1); 
+    urlDatabase[req.params.shortURL].visitors.push((users[req.session.user_id].UUID));
+  } 
   console.log(urlDatabase);
+  urlDatabase[req.params.shortURL].visitsTimes.push(getDate()); 
+  // console.log(urlDatabase);
   res.redirect(longURL);
 });  
 

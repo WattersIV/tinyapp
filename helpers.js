@@ -55,7 +55,20 @@ const getDate = () => {
   const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
   const dateTime = date+' '+time; 
   return dateTime
-}
+} 
+
+const isUniqueVisit = (uuid, userDatabase, urlDatabase, shortURL) => {
+  for (const user in userDatabase) {  
+    if (userDatabase[user].UUID === uuid) {  
+      for (const visitor in urlDatabase[shortURL].visitors) {   
+        if(userDatabase[user].UUID === urlDatabase[shortURL].visitors[visitor]) {
+          return false
+        }
+      }
+    }
+  } 
+  return true;
+} 
 
 module.exports = {
   getMyUrls, 
@@ -63,5 +76,6 @@ module.exports = {
   getUser,  
   generateRandomString, 
   cookieIsUser, 
-  getDate
+  getDate, 
+  isUniqueVisit
 }
