@@ -37,9 +37,9 @@ const users = {
 
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID", visits: 0, uniqueVisits: 0,
-                       visitsTimes: [], visitors: []},
+  visitsTimes: [], visitors: []},
   "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID", visits: 0, uniqueVisits: 0,
-                       visitsTimes: [], visitors: []}
+  visitsTimes: [], visitors: []}
 }; 
 
 //--------------- Page Roots -----------------
@@ -47,6 +47,14 @@ const urlDatabase = {
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });  
+
+app.get('/', (req, res) => {
+  if (req.session.user_id) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  } 
+});
 
 app.get("/urls", (req, res) => {
   if (cookieIsUser(req.session.user_id, users)) {
@@ -185,9 +193,7 @@ app.put("/urls/:shortURL/update", (req, res) => {
 
 
 // -------------------Misc----------------------
-app.get("/", (req, res) => {
-  res.send("Hello!");
-}); 
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 }); 
