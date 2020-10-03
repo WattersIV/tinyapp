@@ -62,7 +62,7 @@ app.get("/urls", (req, res) => {
     const templateVars = {urls: myUrls,
                           user: getUser(req.session.user_id, users)};  
     res.render("urls_index", templateVars);
-  } else {
+  } else { 
     res.redirect("/login");
   }
 });
@@ -99,7 +99,8 @@ app.post("/urls", (req, res) => {
                           visits: 0, 
                           uniqueVisits: 0, 
                           visitsTimes: [],
-                          visitors: []};
+                          visitors: [], 
+                          created: getDate()};
     res.redirect(`/urls/${shortURL}`);
   }); 
 
@@ -150,10 +151,14 @@ app.get("/urls/new", (req, res) => {     // gen a new short url
 });
 
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
-const templateVars = { shortURL: req.params.shortURL, 
-                      longURL: urlDatabase[req.params.shortURL].longURL, 
-                      user: getUser(req.session.user_id, users) };  
-  res.render("urls_show", templateVars);
+  if (cookieIsUser(req.session.user_id, users && req.session.user_id === urlDatabase[req.params.shortURL].userID)){
+    const templateVars = { shortURL: req.params.shortURL, 
+                        longURL: urlDatabase[req.params.shortURL].longURL, 
+                        user: getUser(req.session.user_id, users)};  
+    res.render("urls_show", templateVars);
+  } else {
+    res.redirect("/login");
+  } 
 }); 
 
 app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
