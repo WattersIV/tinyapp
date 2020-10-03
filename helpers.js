@@ -57,6 +57,7 @@ const getDate = () => {
   return dateTime
 } 
 
+// Checks if a user of a tiny url is a unique visitor
 const isUniqueVisit = (uuid, userDatabase, urlDatabase, shortURL) => {
   for (const user in userDatabase) {  
     if (userDatabase[user].UUID === uuid) {  

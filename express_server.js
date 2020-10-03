@@ -9,7 +9,6 @@ const { v4: uuidv4 } = require('uuid');
 const { getMyUrls, getUserWithEmail, getUser, generateRandomString, cookieIsUser, getDate, isUniqueVisit } = require("./helpers");
 
 app.set("view engine", "ejs");
-// override with POST having ?_method=DELETE
 app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({extended: true})); //transforms body data from buffer to a string
 app.use(cookieSession({
@@ -171,7 +170,6 @@ app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
   } 
   console.log(urlDatabase);
   urlDatabase[req.params.shortURL].visitsTimes.push(getDate()); 
-  // console.log(urlDatabase);
   res.redirect(longURL);
 });  
 
