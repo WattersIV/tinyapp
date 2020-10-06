@@ -150,7 +150,7 @@ app.get("/urls/new", (req, res) => {     // gen a new short url
 });
 
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
-  if (cookieIsUser(req.session.user_id, users) || users[req.session.user_id].id !== urlDatabase[req.params.shortURL].userID) {
+  if (cookieIsUser(req.session.user_id, users) || [req.session.user_id].id !== [req.params.shortURL].userID) {
     const templateVars = { shortURL: req.params.shortURL, 
                         longURL: urlDatabase[req.params.shortURL].longURL, 
                         user: getUser(req.session.user_id, users)};  
