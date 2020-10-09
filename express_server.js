@@ -123,7 +123,10 @@ res.redirect("/urls");
 
 app.post("/login", (req, res) => {
   if (!getUserWithEmail(req.body.email, users)) {
-    res.redirect("/register");
+    res.redirect("/register"); 
+  } 
+  if (req.body.email.length === 0 || req.body.password.length === 0){
+    return res.status(403).send("Email or Password is empty");
   } 
   for (const user in users) {
     if(users[user].email === req.body.email) {  
