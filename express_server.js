@@ -104,7 +104,7 @@ app.post("/urls", (req, res) => {
   }); 
 
 app.post("/register", (req, res) => {
-  if (req.body.email === '' || req.body.password === '') {
+  if (!req.body.email|| !req.body.password) {
     res.status(400).send('Email and password required');
   } 
   if (getUserWithEmail(req.body.email, users)) {
@@ -153,7 +153,7 @@ app.get("/urls/new", (req, res) => {     // gen a new short url
 });
 
 app.get("/urls/:shortURL", (req, res) => {    //find longurl with short
-  if (cookieIsUser(req.session.user_id, users) || [req.session.user_id].id !== [req.params.shortURL].userID) {
+  if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
     const templateVars = { shortURL: req.params.shortURL, 
                         longURL: urlDatabase[req.params.shortURL].longURL, 
                         user: getUser(req.session.user_id, users)};  
@@ -167,11 +167,12 @@ app.get("/u/:shortURL", (req, res) => {    // redirects client to longURL
   const longURL = urlDatabase[req.params.shortURL].longURL; 
   urlDatabase[req.params.shortURL].visits = ((urlDatabase[req.params.shortURL].visits)  + 1); 
   
-  if (isUniqueVisit(users[req.session.user_id].UUID, users, urlDatabase, req.params.shortURL)) {
-    urlDatabase[req.params.shortURL].uniqueVisits = (urlDatabase[req.params.shortURL].uniqueVisits + 1); 
-    urlDatabase[req.params.shortURL].visitors.push((users[req.session.user_id].UUID));
-  } 
-  console.log(urlDatabase);
+  if(req.session.user_id){
+    if (isUniqueVisit(users[req.session.user_id].UUID, users, urlDatabase, req.params.shortURL)) {
+      urlDatabase[req.params.shortURL].uniqueVisits = (urlDatabase[req.params.shortURL].uniqueVisits + 1); 
+      urlDatabase[req.params.shortURL].visitors.push((users[req.session.user_id].UUID));
+    } 
+  }
   urlDatabase[req.params.shortURL].visitsTimes.push(getDate()); 
   res.redirect(longURL);
 });  
@@ -190,7 +191,6 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
 app.put("/urls/:shortURL/update", (req, res) => {
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) { 
     urlDatabase[req.params.shortURL].longURL = req.body.longURL; 
-    console.log(urlDatabase[req.params.shortURL])
     res.redirect(`/urls/${req.params.shortURL}`); 
   } else {
     res.redirect("/login");
@@ -199,10 +199,6 @@ app.put("/urls/:shortURL/update", (req, res) => {
 
 
 // -------------------Misc----------------------
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-}); 
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
